@@ -23,7 +23,7 @@ async def custom_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
 # Web App
 
 async def launch_web_ui(update: Update, callback: CallbackContext):
-    kb = [ [KeyboardButton("Show me Google!", web_app=WebAppInfo("https://google.com"))] ]
+    kb = [ [KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/PrakarshKaBot/"))] ]
     await update.message.reply_text("Let's do this...", reply_markup=ReplyKeyboardMarkup(kb))
 
 # Responses
