@@ -15,14 +15,9 @@
                 { name: "dairy", value: 5 }
             ];
         //initialize the "save" button
-        const mainButton = window.Telegram.WebApp.MainButton;
-        mainButton.text = "Save Preferences";
-        mainButton.enable();
-        mainButton.show();
-        // and make it send the "foods" object (as JSON string) back to the backend
-        mainButton.onClick(function(){
+        document.getElementById("saveButton").onclick = function() {
           window.Telegram.WebApp.sendData(JSON.stringify($scope.foods));
-        })
+        };
       });
     </script>
   </head>
@@ -31,5 +26,6 @@
       <div style="width: 100px; display: inline-block">{{food.name}} : {{food.value}}</div>
       <input style="display: inline-block" type="range" min="1" max="10" ng-model="food.value" value="{{food.value}}">
     </div>
+    <button id="saveButton">Save Preferences</button>
   </body>
 </html>
