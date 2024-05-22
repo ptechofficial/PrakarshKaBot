@@ -1,5 +1,4 @@
 import json
-from typing import Final
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
@@ -13,31 +12,53 @@ BOT_USERNAME = os.getenv('USERNAME')
 # Commands
 async def start_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [KeyboardButton("Whitelist"), KeyboardButton("Trade")],
-        [KeyboardButton("Portfolio"), KeyboardButton("Earn")],
-        [KeyboardButton("Support")]
+        [InlineKeyboardButton("Whitelist", callback_data='whitelist'), InlineKeyboardButton("Trade", callback_data='trade')],
+        [InlineKeyboardButton("Portfolio", callback_data='portfolio'), InlineKeyboardButton("Earn", callback_data='earn')],
+        [InlineKeyboardButton("Support", callback_data='support')]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard)
     await update.message.reply_text("Welcome to Storm Trade - first leveraged DEX on TON! ⚡️ \n\n To start your trading journey, open app and connect your TON wallet 👇", reply_markup=reply_markup)
 
 async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("You selected the Whitelist command.")
+    keyboard = [
+        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Support", callback_data="support")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    if update.callback_query: 
+        await update.callback_query.answer() 
+        await update.callback_query.message.reply_text("You selected the whitelist command.", reply_markup=reply_markup)
+    else:
+        await update.message.reply_text("You selected the whitelist command.", reply_markup=reply_markup)
 
 async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("Earn", callback_data="/earn"), InlineKeyboardButton("Support", callback_data="/support")]
+        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Support", callback_data="support")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("You selected the TRADE command.", reply_markup=reply_markup)
+    if update.callback_query: 
+        await update.callback_query.answer() 
+        await update.message.reply_text("TRADE WITH BUTTON", reply_markup=reply_markup)
+
+    else:
+        await update.message.reply_text("You selected the TRADE commands.", reply_markup=reply_markup)
 
 async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("You selected the PORTFOLIO command.")
+    if update.callback_query:
+        await update.callback_query.message.reply_text("Portfolio command through a button")
+    else:
+        await update.message.reply_text("Direct Portfolio Command")
 
 async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("You selected the EARN command.")
+    if update.callback_query:
+        await update.callback_query.message.reply_text("Earn command through a button")
+    else:
+        await update.message.reply_text("Direct Earn Command")
 
 async def support_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("You selected the SUPPORT command.")
+    if update.callback_query:
+        await update.callback_query.message.reply_text("Support through a button")
+    else:
+        await update.message.reply_text("Direct support")
 
 
 # Web App
@@ -51,6 +72,14 @@ async def web_app_data(update: Update, context: CallbackContext):
     await update.message.reply_text("Your data was:")
     for result in data:
         await update.message.reply_text(f"{result['name']}: {result['value']}")
+
+async def button_click(update: Update, context: CallbackContext):
+    query = update.callback_query
+    command = query.data
+    if command == "earn":
+        await earn_command(update, context)
+    elif command == "support":
+        await support_command(update, context)
 
 # Responses
 def handle_response(text: str) -> str:
@@ -75,6 +104,7 @@ if __name__ == '__main__':
     print('Starting bot...')
     app = Application.builder().token(TOKEN).build()
 
+    app.add_handler(CallbackQueryHandler(button_click))
     #Commands
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('whitelist', whitelist_command))
