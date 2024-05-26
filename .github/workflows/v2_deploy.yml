@@ -22,3 +22,14 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ubuntu
           TARGET: /home/ubuntu/PrakarshKaBot
+      - name: SSH into EC2 and set up environment
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd /home/ubuntu/PrakarshKaBot
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          sudo systemctl restart telegram_bot
+        EOF
+      env:
+        EC2_HOST: ${{ secrets.EC2_HOST }}
