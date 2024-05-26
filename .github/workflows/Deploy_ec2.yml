@@ -26,7 +26,7 @@ jobs:
 
     - name: Copy files to EC2
       run: |
-        scp -r -o StrictHostKeyChecking=no ../PrakarshKaBot ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/PrakarshKaBot
+        scp -r -o StrictHostKeyChecking=no ./ ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/PrakarshKaBot
 
     - name: SSH into EC2 and set up environment
       run: |
