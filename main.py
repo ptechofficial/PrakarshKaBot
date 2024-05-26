@@ -17,7 +17,7 @@ async def start_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("Support", callback_data='support')]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard)
-    await update.message.reply_text("Welcome to Storm Trade - first leveraged DEX on TON! ⚡️ \n\n To start your trading journey, open app and connect your TON wallet 👇", reply_markup=reply_markup)
+    await update.message.reply_text("Welcome to THE Storm Trade - first leveraged DEX on TON! ⚡️ \n\n To start your trading journey, open app and connect your TON wallet 👇", reply_markup=reply_markup)
 
 async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -118,7 +118,6 @@ if __name__ == '__main__':
 
     #Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
 
     #Errors
     app.add_error_handler(error)
