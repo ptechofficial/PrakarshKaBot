@@ -10,14 +10,44 @@ TOKEN = os.getenv('TOKEN')
 BOT_USERNAME = os.getenv('USERNAME')
 
 # Commands
-async def start_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("Whitelist", callback_data='whitelist'), InlineKeyboardButton("Trade", callback_data='trade')],
-        [InlineKeyboardButton("Portfolio", callback_data='portfolio'), InlineKeyboardButton("Earn", callback_data='earn')],
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    image_path = './Assets/Start.jpeg'
+
+    reply_buttons = [
+        [
+            InlineKeyboardButton("Whitelist", callback_data='whitelist'),
+            InlineKeyboardButton("Trade", callback_data='trade'),
+        ],
+        [
+            InlineKeyboardButton("Portfolio", callback_data='portfolio'),
+            InlineKeyboardButton("Earn", callback_data='earn'),
+        ],
+        [InlineKeyboardButton("Support", callback_data='support')],
+    ]
+    reply_button_markup = InlineKeyboardMarkup(reply_buttons)
+
+    keyboard_buttons = [
+        [InlineKeyboardButton("Whitelist", callback_data='whitelist')],
+        [InlineKeyboardButton("Trade", callback_data='trade')],
+        [InlineKeyboardButton("Portfolio", callback_data='portfolio')],
+        [InlineKeyboardButton("Earn", callback_data='earn')],
         [InlineKeyboardButton("Support", callback_data='support')]
     ]
-    reply_markup = ReplyKeyboardMarkup(keyboard)
-    await update.message.reply_text("Yov3 Bhai updated Welcome to Storm Trade - first leveraged DEX on TON! ⚡️ \n\n To start your trading journey, open app and connect your TON wallet 👇", reply_markup=reply_markup)
+    keyboard_button_markup = ReplyKeyboardMarkup(keyboard_buttons, resize_keyboard=True)
+
+
+    with open(image_path, 'rb') as photo:
+        await update.message.reply_photo(
+            photo,
+            caption="Welcome to Storm Trade - first leveraged DEX on TON! ⚡️\n\n To start your trading journey, open app and connect your TON wallet 👇",
+            reply_markup=reply_button_markup
+        )
+
+    await update.message.reply_text(
+        "Select an option to proceed",
+        reply_markup=keyboard_button_markup
+    )
+    
 
 async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -26,9 +56,9 @@ async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE)
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("You selected the whitelist command.", reply_markup=reply_markup)
+        await update.callback_query.message.reply_text("Whitelist command from a button", reply_markup=reply_markup)
     else:
-        await update.message.reply_text("You selected the whitelist command.", reply_markup=reply_markup)
+        await update.message.reply_text("Whitelist command NOT from a button", reply_markup=reply_markup)
 
 async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -37,25 +67,27 @@ async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.message.reply_text("TRADE WITH BUTTON", reply_markup=reply_markup)
-
+        await update.callback_query.message.reply_text("TRADE with a BUTTON ", reply_markup=reply_markup)
     else:
-        await update.message.reply_text("You selected the TRADE commands.", reply_markup=reply_markup)
+        await update.message.reply_text("You selected the TRADE commands.")
 
 async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
+        await update.callback_query.answer() 
         await update.callback_query.message.reply_text("Portfolio command through a button")
     else:
         await update.message.reply_text("Direct Portfolio Command")
 
 async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
+        await update.callback_query.answer() 
         await update.callback_query.message.reply_text("Earn command through a button")
     else:
         await update.message.reply_text("Direct Earn Command")
 
 async def support_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
+        await update.callback_query.answer() 
         await update.callback_query.message.reply_text("Support through a button")
     else:
         await update.message.reply_text("Direct support")
@@ -76,10 +108,19 @@ async def web_app_data(update: Update, context: CallbackContext):
 async def button_click(update: Update, context: CallbackContext):
     query = update.callback_query
     command = query.data
-    if command == "earn":
+    await query.answer() 
+    
+    if command == "whitelist":
+        await whitelist_command(update, context)
+    elif command == "trade":
+        await trade_command(update, context)
+    elif command == "portfolio":
+        await portfolio_command(update, context)
+    elif command == "earn":
         await earn_command(update, context)
     elif command == "support":
         await support_command(update, context)
+
 
 # Responses
 def handle_response(text: str) -> str:
@@ -114,9 +155,12 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('support', support_command))
 
     #Web App
+    
+    app.add_handler(CommandHandler('webapp', launch_web_ui))
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     #Messages
+
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     #Errors
