@@ -2,6 +2,7 @@ import json
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
+from function_calling import function_calling
 if os.path.exists(".env"):
     from dotenv import load_dotenv
     load_dotenv()
@@ -39,13 +40,13 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open(image_path, 'rb') as photo:
         await update.message.reply_photo(
             photo,
-            caption="Welcome to Storm Trade - first leveraged DEX on TON! ⚡️\n\n To start your trading journey, open app and connect your TON wallet 👇",
-            reply_markup=reply_button_markup
+            caption="🌟 Welcome to Bella, your ultimate crypto news companion! 🌟 \n Get the latest updates, trade like a pro, and earn rewards! 💰📈 \n Explore the exciting world of cryptocurrencies with just a few clicks! 🚀\nNeed help? Our support team is always ready to assist you! 💬",
+            reply_markup=keyboard_button_markup
         )
 
     await update.message.reply_text(
         "Select an option to proceed",
-        reply_markup=keyboard_button_markup
+        reply_markup=reply_button_markup
     )
     
 
@@ -56,9 +57,9 @@ async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE)
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("Whitelist command from a button", reply_markup=reply_markup)
+        await update.callback_query.message.reply_text("🔒 Unlock exclusive benefits and join our whitelist today! 🔑\nStay tuned for more information on how to become a part of our elite community! 🌟👥\nGet ready for amazing perks and opportunities! 🎉🚀\n", reply_markup=reply_markup)
     else:
-        await update.message.reply_text("Whitelist command NOT from a button", reply_markup=reply_markup)
+        await update.message.reply_text("🔒 Unlock exclusive benefits and join our whitelist today! 🔑\nStay tuned for more information on how to become a part of our elite community! 🌟👥\nGet ready for amazing perks and opportunities! 🎉🚀\n", reply_markup=reply_markup)
 
 async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
@@ -67,30 +68,30 @@ async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("TRADE with a BUTTON ", reply_markup=reply_markup)
+        await update.callback_query.message.reply_text("🎯 Ready to trade and conquer the crypto market? 🎯\nHead over to our cutting-edge webapp and unleash your trading potential! 📊💸\nExperience seamless trading like never before with Bella! 🌐🔒\n", reply_markup=reply_markup)
     else:
-        await update.message.reply_text("You selected the TRADE commands.")
+        await update.message.reply_text("🎯 Ready to trade and conquer the crypto market? 🎯\nHead over to our cutting-edge webapp and unleash your trading potential! 📊💸\nExperience seamless trading like never before with Bella! 🌐🔒\n")
 
 async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("Portfolio command through a button")
+        await update.callback_query.message.reply_text("📜 Your Portfolio at Your Fingertips! 📜\nWith Bella, you can easily track and manage your cryptocurrency portfolio! 💼📊\n Stay on top of your investments and make informed decisions! 📈🎯\n")
     else:
-        await update.message.reply_text("Direct Portfolio Command")
+        await update.message.reply_text("📜 Your Portfolio at Your Fingertips! 📜\nWith Bella, you can easily track and manage your cryptocurrency portfolio! 💼📊\n Stay on top of your investments and make informed decisions! 📈🎯\n")
 
 async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("Earn command through a button")
+        await update.callback_query.message.reply_text("💡 Want to earn while learning about cryptocurrencies? 💡\nBella offers incredible opportunities to boost your crypto earnings! 💪🌱\nStay tuned for exclusive promotions, giveaways, and rewards! 🎉🎁\n")
     else:
-        await update.message.reply_text("Direct Earn Command")
+        await update.message.reply_text("💡 Want to earn while learning about cryptocurrencies? 💡\nBella offers incredible opportunities to boost your crypto earnings! 💪🌱\nStay tuned for exclusive promotions, giveaways, and rewards! 🎉🎁\n")
 
 async def support_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("Support through a button")
+        await update.callback_query.message.reply_text("🙋‍♂️ Need assistance? Our friendly support team is here for you! 🙋‍♀️\nWhether you have questions, concerns, or feedback, we're just a message away! 📩💬\nYour satisfaction is our top priority! 😊👍\n")
     else:
-        await update.message.reply_text("Direct support")
+        await update.message.reply_text("🙋‍♂️ Need assistance? Our friendly support team is here for you! 🙋‍♀️\nWhether you have questions, concerns, or feedback, we're just a message away! 📩💬\nYour satisfaction is our top priority! 😊👍\n")
 
 
 # Web App
@@ -125,7 +126,10 @@ async def button_click(update: Update, context: CallbackContext):
 # Responses
 def handle_response(text: str) -> str:
     processed:str = text.lower()
-    return processed
+    print(f'Now executing, function_calling({text})')
+    response_json = function_calling(processed)
+    print(response_json.candidates[0].content.parts[0].text)
+    return response_json.candidates[0].content.parts[0].text
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type:str = update.message.chat.type
