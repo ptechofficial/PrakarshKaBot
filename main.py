@@ -40,7 +40,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with open(image_path, 'rb') as photo:
         await update.message.reply_photo(
             photo,
-            caption="🌟 Welcome to Bella, your ultimate crypto news companion! 🌟 \n Get the latest updates, trade like a pro, and earn rewards! 💰📈 \n Explore the exciting world of cryptocurrencies with just a few clicks! 🚀\nNeed help? Our support team is always ready to assist you! 💬",
+            caption="🌟 Welcome to Bella, your ultimate crypto news companion! 🌟 \nGet the latest updates, trade like a pro, and earn rewards! 💰📈 \n Explore the exciting world of cryptocurrencies with just a few clicks! 🚀\nNeed help? Our support team is always ready to assist you! 💬",
             reply_markup=keyboard_button_markup
         )
 
