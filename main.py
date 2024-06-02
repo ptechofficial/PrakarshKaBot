@@ -9,7 +9,6 @@ if os.path.exists(".env"):
 
 TOKEN = os.getenv('TOKEN')
 BOT_USERNAME = os.getenv('USERNAME')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 # Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -147,7 +146,6 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'ERROR!   --  Update: ({update}) caused error: ({context.error})')
 
 if __name__ == '__main__':
-    print("KEY = ",GEMINI_API_KEY)
     print('Starting bot...')
     app = Application.builder().token(TOKEN).build()
 
