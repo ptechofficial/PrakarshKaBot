@@ -16,7 +16,7 @@ if os.path.exists(".env"):
     from dotenv import load_dotenv
     load_dotenv()
 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+GEMINI_API_KEY = 'AIzaSyBByajzdb7tNcIFD8IEBJ0kZ9GKTfTBTu4'
 
 genai.configure(api_key=GEMINI_API_KEY)
 
