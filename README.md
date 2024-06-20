@@ -36,7 +36,7 @@ To initiate the bot, you'll need to decide whether you're operating in a `test` 
 
 For testing purposes, launch the bot with:
     ```
-    python server.py test
+    python server.py test 
     ```
 
 ### Main Environment
