@@ -64,7 +64,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages['hot_questions']['message'] + "hello12345"
+    message = messages['hot_questions']['message'] + "Asdas"
 
     hot_questions_json = hot_questions_gen
 

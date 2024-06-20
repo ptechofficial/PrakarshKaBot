@@ -58,11 +58,15 @@ class Handler(FileSystemEventHandler):
     def __init__(self, target, server):
         self.target = target
         self.server = server
+        self.last_triggered = 0  # To track the last triggered time
 
     def on_modified(self, event):
-        if self.should_rerun(event.src_path):
-            print(f"Detected change in {event.src_path}. Rerunning script...")
-            self.server.restart_script(self.get_script_path())
+        current_time = time.time()
+        if current_time - self.last_triggered > 1:  # Debounce threshold (1 second)
+            if self.should_rerun(event.src_path):
+                print(f"Detected change in {event.src_path}. Rerunning script...")
+                self.last_triggered = current_time  # Update last triggered time
+                self.server.restart_script(self.get_script_path())
 
     def should_rerun(self, src_path):
         if self.target == "test":
