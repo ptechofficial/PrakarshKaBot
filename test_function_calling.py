@@ -20,9 +20,7 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-def to_markdown(text):
-  text = text.replace('•', '  *')
-  return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))
+available_queries = ['risingLiquidity','buyingPressure','solidPerformance','experiencedBuyers','riskyBets','blueChips','topGainers','topLosers', 'trending']
 
 
 def call_discover_api(query:str):
@@ -32,15 +30,19 @@ def call_discover_api(query:str):
   resp= requests.post(url, json = myobj)
   print(resp)
   return resp.text
- 
 
-def function_calling(userInput:str):
+def gen_response(functionPrompt:str):
     model = genai.GenerativeModel(model_name='gemini-1.5-flash',  tools=[call_discover_api])
 
     chat = model.start_chat(enable_automatic_function_calling=True)
 
-    available_queries = ['risingLiquidity','buyingPressure','solidPerformance','experiencedBuyers','riskyBets','blueChips','topGainers','topLosers']
+    response = chat.send_message(functionPrompt)
 
+    return response
+ 
+
+def function_calling(userInput:str):
+    
     message_template = """ 
     You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
     We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
@@ -48,10 +50,20 @@ def function_calling(userInput:str):
     If you cannot find a suitable string, return a reply according to your understanding. Make this reply very short. Very short.
     Here is the question: {user_input}
     """
-    # Use the user input to fill in the template
     message = message_template.format(user_input=userInput, available_queries=available_queries)
 
-    # Send the message to the model and get the response
-    response = chat.send_message(message)
+    response = gen_response(message)
     return response
 
+def hot_questions_gen():
+
+    message_template = """ 
+    I want you to return {available_queries} in 5 different texts
+    """
+    print("Hello world12")
+    message = message_template.format(available_queries=available_queries)
+
+    print(message)
+
+    response = gen_response(message)
+    return response

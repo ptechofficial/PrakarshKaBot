@@ -1,0 +1,29 @@
+commands:
+  start:
+    message: |
+      ** CryptoTradeGPT - Your crypto info & insights hub! **
+
+      Get the latest info & analysis with cutting-edge AI & real-time data. I can answer your questions about the crypto market and specific currencies. 
+
+      Here's what I can do 👇
+
+      - Get the latest info and analytics about any Crypto currency.
+      - Ask me anything about buying pressure, liquidity, trends, and more!
+      - I can answer about risky bets, blue chips, top gainers/losers
+
+      Use /example_questions to see what crypto questions I can answer.
+
+    select_option: "Select an option to proceed"
+  whitelist:
+    message: "🔒 Unlock exclusive benefits and join our whitelist today! 🔑\nStay tuned for more information on how to become a part of our elite community! 🌟👥\nGet ready for amazing perks and opportunities! 🎉🚀"
+  trade:
+    message: "🎯 Ready to trade and conquer the crypto market? 🎯\nHead over to our cutting-edge webapp and unleash your trading potential! 📊💸\nExperience seamless trading like never before with CryptoTradeGPT! 🌐🔒"
+  portfolio:
+    message: "📜 Your Portfolio at Your Fingertips! 📜\nWith CryptoTradeGPT, you can easily track and manage your cryptocurrency portfolio! 💼📊\nStay on top of your investments and make informed decisions! 📈🎯"
+  earn:
+    message: "💡 Want to earn while learning about cryptocurrencies? 💡\nCryptoTradeGPT offers incredible opportunities to boost your crypto earnings! 💪🌱\nStay tuned for exclusive promotions, giveaways, and rewards! 🎉🎁"
+  support:
+    message: "🙋‍♂️ Need assistance? Our friendly support team is here for you! 🙋‍♀️\nWhether you have questions, concerns, or feedback, we're just a message away! 📩💬\nYour satisfaction is our top priority! 😊👍"
+  webapp:
+    prompt: "Let's do this..."
+    data_response: "Your data was:"

@@ -1,8 +1,11 @@
 import json
+import yaml
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
-from test_function_calling import function_calling
+from test_function_calling import function_calling, hot_questions_gen
+
+# Load environment variables
 if os.path.exists(".env"):
     from dotenv import load_dotenv
     load_dotenv()
@@ -10,6 +13,9 @@ if os.path.exists(".env"):
 TOKEN = os.getenv('TOKEN_TEST')
 BOT_USERNAME = os.getenv('USERNAME_TEST')
 
+# Load messages from YAML
+with open('meta_test.yaml', 'r',  encoding='utf-8') as file:
+    messages = yaml.safe_load(file)['commands']
 
 # Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -17,93 +23,111 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_buttons = [
         [
-            InlineKeyboardButton("Whitelist", callback_data='whitelist'),
             InlineKeyboardButton("Trade", callback_data='trade'),
+            InlineKeyboardButton("Hot Questions", callback_data='hot_questions'),
         ],
         [
             InlineKeyboardButton("Portfolio", callback_data='portfolio'),
             InlineKeyboardButton("Earn", callback_data='earn'),
         ],
-        [InlineKeyboardButton("Support", callback_data='support')],
+        [InlineKeyboardButton("Help", callback_data='help')],
     ]
     reply_button_markup = InlineKeyboardMarkup(reply_buttons)
 
     keyboard_buttons = [
-        [InlineKeyboardButton("Whitelist", callback_data='whitelist')],
+        [InlineKeyboardButton("Hot Questions", callback_data='hot_questions')],
         [InlineKeyboardButton("Trade", callback_data='trade')],
         [InlineKeyboardButton("Portfolio", callback_data='portfolio')],
         [InlineKeyboardButton("Earn", callback_data='earn')],
-        [InlineKeyboardButton("Support", callback_data='support')]
+        [InlineKeyboardButton("Help", callback_data='help')]
     ]
     keyboard_button_markup = ReplyKeyboardMarkup(keyboard_buttons, resize_keyboard=True)
-
 
     with open(image_path, 'rb') as photo:
         await update.message.reply_photo(
             photo,
-            caption="🌟 Welcome to Bella, your ultimate crypto news companion! 🌟 \n Get the latest updates, trade like a pro, and earn rewards! 💰📈 \n Explore the exciting world of cryptocurrencies with just a few clicks! 🚀\nNeed help? Our support team is always ready to assist you! 💬",
-            reply_markup=keyboard_button_markup
+            caption=messages['start']['message'],
+            reply_markup=keyboard_button_markup,
+            parse_mode='HTML'
         )
 
     await update.message.reply_text(
-        "Select an option to proceed",
-        reply_markup=reply_button_markup
+        messages['start']['select_option'],
+        reply_markup=reply_button_markup,
+        parse_mode='HTML'
     )
     
 
-async def whitelist_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Support", callback_data="support")]
+        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Help", callback_data="help")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+
+    message = messages['hot_questions']['message']
+
+    hot_questions_json = hot_questions_gen
+
+    print(hot_questions_json)
+
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("🔒 Unlock exclusive benefits and join our whitelist today! 🔑\nStay tuned for more information on how to become a part of our elite community! 🌟👥\nGet ready for amazing perks and opportunities! 🎉🚀\n", reply_markup=reply_markup)
+        await update.callback_query.message.reply_text(message, reply_markup=reply_markup, parse_mode='HTML')
     else:
-        await update.message.reply_text("🔒 Unlock exclusive benefits and join our whitelist today! 🔑\nStay tuned for more information on how to become a part of our elite community! 🌟👥\nGet ready for amazing perks and opportunities! 🎉🚀\n", reply_markup=reply_markup)
+        await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='HTML')
 
 async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Support", callback_data="support")]
+        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Help", callback_data="help")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("🎯 Ready to trade and conquer the crypto market? 🎯\nHead over to our cutting-edge webapp and unleash your trading potential! 📊💸\nExperience seamless trading like never before with Bella! 🌐🔒\n", reply_markup=reply_markup)
+        await update.callback_query.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
+            parse_mode='HTML')
     else:
-        await update.message.reply_text("🎯 Ready to trade and conquer the crypto market? 🎯\nHead over to our cutting-edge webapp and unleash your trading potential! 📊💸\nExperience seamless trading like never before with Bella! 🌐🔒\n")
+        await update.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
+            parse_mode='HTML')
 
 async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("📜 Your Portfolio at Your Fingertips! 📜\nWith Bella, you can easily track and manage your cryptocurrency portfolio! 💼📊\n Stay on top of your investments and make informed decisions! 📈🎯\n")
+        await update.callback_query.message.reply_text(messages['portfolio']['message'],
+            parse_mode='HTML')
     else:
-        await update.message.reply_text("📜 Your Portfolio at Your Fingertips! 📜\nWith Bella, you can easily track and manage your cryptocurrency portfolio! 💼📊\n Stay on top of your investments and make informed decisions! 📈🎯\n")
+        await update.message.reply_text(messages['portfolio']['message'],
+            parse_mode='HTML')
 
 async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("💡 Want to earn while learning about cryptocurrencies? 💡\nBella offers incredible opportunities to boost your crypto earnings! 💪🌱\nStay tuned for exclusive promotions, giveaways, and rewards! 🎉🎁\n")
+        await update.callback_query.message.reply_text(messages['earn']['message'],
+            parse_mode='HTML')
     else:
-        await update.message.reply_text("💡 Want to earn while learning about cryptocurrencies? 💡\nBella offers incredible opportunities to boost your crypto earnings! 💪🌱\nStay tuned for exclusive promotions, giveaways, and rewards! 🎉🎁\n")
+        await update.message.reply_text(messages['earn']['message'],
+            parse_mode='HTML')
 
-async def support_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+async def help_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
     if update.callback_query:
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text("🙋‍♂️ Need assistance? Our friendly support team is here for you! 🙋‍♀️\nWhether you have questions, concerns, or feedback, we're just a message away! 📩💬\nYour satisfaction is our top priority! 😊👍\n")
+        await update.callback_query.message.reply_text(messages['help']['message'],
+            parse_mode='HTML')
     else:
-        await update.message.reply_text("🙋‍♂️ Need assistance? Our friendly support team is here for you! 🙋‍♀️\nWhether you have questions, concerns, or feedback, we're just a message away! 📩💬\nYour satisfaction is our top priority! 😊👍\n")
+        await update.message.reply_text(messages['help']['message'],
+            parse_mode='HTML')
 
 
 # Web App
 
 async def launch_web_ui(update: Update, callback: CallbackContext):
     kb = [ [KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/PrakarshKaBot/"))] ]
-    await update.message.reply_text("Let's do this...", reply_markup=ReplyKeyboardMarkup(kb))
+    await update.message.reply_text(messages['webapp']['prompt'], reply_markup=ReplyKeyboardMarkup(kb),
+            parse_mode='HTML')
 
 async def web_app_data(update: Update, context: CallbackContext):
     data = json.loads(update.message.web_app_data.data)
-    await update.message.reply_text("Your data was:")
+    await update.message.reply_text(messages['webapp']['data_response'],
+            parse_mode='HTML')
     for result in data:
         await update.message.reply_text(f"{result['name']}: {result['value']}")
 
@@ -112,16 +136,16 @@ async def button_click(update: Update, context: CallbackContext):
     command = query.data
     await query.answer() 
     
-    if command == "whitelist":
-        await whitelist_command(update, context)
+    if command == "hot_questions":
+        await hot_questions_command(update, context)
     elif command == "trade":
         await trade_command(update, context)
     elif command == "portfolio":
         await portfolio_command(update, context)
     elif command == "earn":
         await earn_command(update, context)
-    elif command == "support":
-        await support_command(update, context)
+    elif command == "help":
+        await help_command(update, context)
 
 
 # Responses
@@ -154,11 +178,11 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(button_click))
     #Commands
     app.add_handler(CommandHandler('start', start_command))
-    app.add_handler(CommandHandler('whitelist', whitelist_command))
+    app.add_handler(CommandHandler('hot_questions', hot_questions_command))
     app.add_handler(CommandHandler('trade', trade_command))
     app.add_handler(CommandHandler('portfolio', portfolio_command))
     app.add_handler(CommandHandler('earn', earn_command))
-    app.add_handler(CommandHandler('support', support_command))
+    app.add_handler(CommandHandler('help', help_command))
 
     #Web App
     
