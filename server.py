@@ -50,8 +50,6 @@ class Server:
     def restart_script(self, script_path):
         if self.process:
             self.process.terminate()
-            print("Previous process terminated")
-        print(f"Re-Running {script_path}...")
         self.process = subprocess.Popen(["python", script_path])
 
 class Handler(FileSystemEventHandler):

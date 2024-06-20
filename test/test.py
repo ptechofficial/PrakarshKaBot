@@ -4,6 +4,7 @@ from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, In
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
 from gemini_test import function_calling, hot_questions_gen
+import re
 
 # Load environment variables
 if os.path.exists(".env"):
@@ -59,62 +60,85 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
 
 async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Help", callback_data="help")]
-    ]
+    question_template = messages['hot_questions']['message']
+
+    hot_questions_json = hot_questions_gen()
+
+    question_list_string = hot_questions_json.candidates[0].content.parts[0].text
+
+    # Splitting and storing question_list_string to question_array
+    html_pattern = re.compile(r'<[^>]+>')
+    emoji_pattern = re.compile(r'[🔷\d\.]+')
+    questions = question_list_string.strip().split('\n')
+    question_array = []
+
+    for question in questions:
+        clean_question = html_pattern.sub('', question).strip()
+        clean_question = emoji_pattern.sub('', clean_question).strip()
+        question_array.append(clean_question)
+
+    print(question_array)
+
+    keyboard = []
+    inline_keyboard = []
+
+    for index, question in enumerate(question_array, start=1):
+        button_text = f"Q{index}"
+        callback_data = f"{question_array[index]}"
+        inline_keyboard.append(InlineKeyboardButton(button_text, callback_data=callback_data))
+    keyboard.append(inline_keyboard)
+
     reply_markup = InlineKeyboardMarkup(keyboard)
-
-    message = messages['hot_questions']['message'] + "Asdas"
-
-    hot_questions_json = hot_questions_gen
-
-    print(hot_questions_json)
 
     if update.callback_query: 
         await update.callback_query.answer() 
-        await update.callback_query.message.reply_text(message, reply_markup=reply_markup, parse_mode='HTML')
-    else:
-        await update.message.reply_text(message, reply_markup=reply_markup, parse_mode='HTML')
+        update = update.callback_query    
+        
+    try:
+        await update.message.reply_text(question_list_string, parse_mode='HTML', reply_markup=reply_markup)
+    except Exception as e:
+        print(f"ERROR in parsing question list: {e}")
+        await update.message.reply_text(question_template, parse_mode='HTML', reply_markup=reply_markup)
 
-async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    keyboard = [
-        [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Help", callback_data="help")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    if update.callback_query: 
-        await update.callback_query.answer() 
-        await update.callback_query.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
-            parse_mode='HTML')
-    else:
-        await update.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
-            parse_mode='HTML')
+# async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+#     keyboard = [
+#         [InlineKeyboardButton("Earn", callback_data="earn"), InlineKeyboardButton("Help", callback_data="help")]
+#     ]
+#     reply_markup = InlineKeyboardMarkup(keyboard)
+#     if update.callback_query: 
+#         await update.callback_query.answer() 
+#         await update.callback_query.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
+#             parse_mode='HTML')
+#     else:
+#         await update.message.reply_text(messages['trade']['message'], reply_markup=reply_markup,
+#             parse_mode='HTML')
 
-async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    if update.callback_query:
-        await update.callback_query.answer() 
-        await update.callback_query.message.reply_text(messages['portfolio']['message'],
-            parse_mode='HTML')
-    else:
-        await update.message.reply_text(messages['portfolio']['message'],
-            parse_mode='HTML')
+# async def portfolio_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+#     if update.callback_query:
+#         await update.callback_query.answer() 
+#         await update.callback_query.message.reply_text(messages['portfolio']['message'],
+#             parse_mode='HTML')
+#     else:
+#         await update.message.reply_text(messages['portfolio']['message'],
+#             parse_mode='HTML')
 
-async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    if update.callback_query:
-        await update.callback_query.answer() 
-        await update.callback_query.message.reply_text(messages['earn']['message'],
-            parse_mode='HTML')
-    else:
-        await update.message.reply_text(messages['earn']['message'],
-            parse_mode='HTML')
+# async def earn_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+#     if update.callback_query:
+#         await update.callback_query.answer() 
+#         await update.callback_query.message.reply_text(messages['earn']['message'],
+#             parse_mode='HTML')
+#     else:
+#         await update.message.reply_text(messages['earn']['message'],
+#             parse_mode='HTML')
 
-async def help_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    if update.callback_query:
-        await update.callback_query.answer() 
-        await update.callback_query.message.reply_text(messages['help']['message'],
-            parse_mode='HTML')
-    else:
-        await update.message.reply_text(messages['help']['message'],
-            parse_mode='HTML')
+# async def help_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+#     if update.callback_query:
+#         await update.callback_query.answer() 
+#         await update.callback_query.message.reply_text(messages['help']['message'],
+#             parse_mode='HTML')
+#     else:
+#         await update.message.reply_text(messages['help']['message'],
+#             parse_mode='HTML')
 
 
 # Web App
@@ -138,14 +162,16 @@ async def button_click(update: Update, context: CallbackContext):
     
     if command == "hot_questions":
         await hot_questions_command(update, context)
-    elif command == "trade":
-        await trade_command(update, context)
-    elif command == "portfolio":
-        await portfolio_command(update, context)
-    elif command == "earn":
-        await earn_command(update, context)
-    elif command == "help":
-        await help_command(update, context)
+    else:
+        await query.message.reply_text(command)
+    # elif command == "trade":
+    #     await trade_command(update, context)
+    # elif command == "portfolio":
+    #     await portfolio_command(update, context)
+    # elif command == "earn":
+    #     await earn_command(update, context)
+    # elif command == "help":
+    #     await help_command(update, context)
 
 
 # Responses
@@ -179,10 +205,10 @@ if __name__ == '__main__':
     #Commands
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('hot_questions', hot_questions_command))
-    app.add_handler(CommandHandler('trade', trade_command))
-    app.add_handler(CommandHandler('portfolio', portfolio_command))
-    app.add_handler(CommandHandler('earn', earn_command))
-    app.add_handler(CommandHandler('help', help_command))
+    # app.add_handler(CommandHandler('trade', trade_command))
+    # app.add_handler(CommandHandler('portfolio', portfolio_command))
+    # app.add_handler(CommandHandler('earn', earn_command))
+    # app.add_handler(CommandHandler('help', help_command))
 
     #Web App
     

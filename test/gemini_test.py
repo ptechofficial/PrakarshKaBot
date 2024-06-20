@@ -34,7 +34,7 @@ def call_discover_api(query:str):
 def gen_response(functionPrompt:str):
     model = genai.GenerativeModel(model_name='gemini-1.5-flash',  tools=[call_discover_api])
 
-    chat = model.start_chat(enable_automatic_function_calling=True)
+    chat = model.start_chat(enable_automatic_function_calling=False)
 
     response = chat.send_message(functionPrompt)
 
@@ -56,14 +56,10 @@ def function_calling(userInput:str):
     return response
 
 def hot_questions_gen():
-
     message_template = """ 
-    I want you to return {available_queries} in 5 different texts
+    Use function calling only when needed. Just respond according to your understanding. This is a telegram bot which provides news about crypto. This telegram bot uses {available_queries} as keywords. I want you to generate 5 questions based on your understanding of those keywords, which the user can ask from this telegram bot. I only want 5 questions not a word more. Also create the starting of each question using 🔷(followed by the question number). Make the word bold by wrapping the word in <b></b>, similarly to italicise use <i></i>, also we're using HTML parse mode so update the string in same manner. Make the word bold and italics only where necessary.
     """
-    print("Hello world12")
     message = message_template.format(available_queries=available_queries)
-
-    print(message)
 
     response = gen_response(message)
     return response
