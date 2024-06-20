@@ -1,8 +1,5 @@
 .env 
 *.pem
-# test.py
-temp.py
-# test_function_calling.py
 
 # Ignore Useless files
 venv/

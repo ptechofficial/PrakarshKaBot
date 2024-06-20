@@ -3,7 +3,7 @@ import json
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
-from function_calling import function_calling
+from gemini_main import function_calling
 
 if os.path.exists(".env"):
     from dotenv import load_dotenv
@@ -13,7 +13,7 @@ TOKEN = os.getenv('TOKEN')
 BOT_USERNAME = os.getenv('USERNAME')
 
 # Load messages from the YAML file
-with open("meta.yaml", 'r', encoding='utf-8') as file:
+with open("main/meta_main.yaml", 'r', encoding='utf-8') as file:
     messages = yaml.safe_load(file)['commands']
 
 # Commands
@@ -100,7 +100,7 @@ async def support_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
 
 # Web App
 async def launch_web_ui(update: Update, callback: CallbackContext):
-    kb = [[KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/PrakarshKaBot/"))]]
+    kb = [[KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io"))]]
     await update.message.reply_text(messages['webapp']['prompt'], reply_markup=ReplyKeyboardMarkup(kb))
 
 async def web_app_data(update: Update, context: CallbackContext):

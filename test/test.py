@@ -3,7 +3,7 @@ import yaml
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
 import os
-from test_function_calling import function_calling, hot_questions_gen
+from gemini_test import function_calling, hot_questions_gen
 
 # Load environment variables
 if os.path.exists(".env"):
@@ -14,7 +14,7 @@ TOKEN = os.getenv('TOKEN_TEST')
 BOT_USERNAME = os.getenv('USERNAME_TEST')
 
 # Load messages from YAML
-with open('meta_test.yaml', 'r',  encoding='utf-8') as file:
+with open('test/meta_test.yaml', 'r',  encoding='utf-8') as file:
     messages = yaml.safe_load(file)['commands']
 
 # Commands
@@ -64,7 +64,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    message = messages['hot_questions']['message']
+    message = messages['hot_questions']['message'] + "hello12345"
 
     hot_questions_json = hot_questions_gen
 
@@ -120,7 +120,7 @@ async def help_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
 # Web App
 
 async def launch_web_ui(update: Update, callback: CallbackContext):
-    kb = [ [KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/PrakarshKaBot/"))] ]
+    kb = [ [KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/"))] ]
     await update.message.reply_text(messages['webapp']['prompt'], reply_markup=ReplyKeyboardMarkup(kb),
             parse_mode='HTML')
 
