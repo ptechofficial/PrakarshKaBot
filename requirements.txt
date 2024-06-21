@@ -2,6 +2,7 @@ python-telegram-bot
 python-dotenv
 pyyaml
 watchdog
+beautifulsoup4
 
 google-generativeai
 IPython

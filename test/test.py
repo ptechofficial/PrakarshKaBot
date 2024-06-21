@@ -5,6 +5,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 import os
 from gemini_test import function_calling, hot_questions_gen
 import re
+from bs4 import BeautifulSoup
 
 # Load environment variables
 if os.path.exists(".env"):
@@ -17,6 +18,15 @@ BOT_USERNAME = os.getenv('USERNAME_TEST')
 # Load messages from YAML
 with open('test/meta_test.yaml', 'r',  encoding='utf-8') as file:
     messages = yaml.safe_load(file)['commands']
+
+def is_valid_html(input_string: str) -> bool:
+    try:
+        # Parse the string with BeautifulSoup
+        soup = BeautifulSoup(input_string, 'html.parser')
+        # If BeautifulSoup can parse it and the parsed content is not empty, it's valid HTML
+        return bool(soup.find())
+    except Exception:
+        return False
 
 # Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -84,7 +94,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
 
     for index, question in enumerate(question_array, start=1):
         button_text = f"Q{index}"
-        callback_data = f"{question_array[index]}"
+        callback_data = f"{question_array[index-1]}"
         inline_keyboard.append(InlineKeyboardButton(button_text, callback_data=callback_data))
     keyboard.append(inline_keyboard)
 
@@ -94,10 +104,9 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
         await update.callback_query.answer() 
         update = update.callback_query    
         
-    try:
+    if is_valid_html(question_list_string):
         await update.message.reply_text(question_list_string, parse_mode='HTML', reply_markup=reply_markup)
-    except Exception as e:
-        print(f"ERROR in parsing question list: {e}")
+    else:
         await update.message.reply_text(question_template, parse_mode='HTML', reply_markup=reply_markup)
 
 # async def trade_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
