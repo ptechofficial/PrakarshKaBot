@@ -21,9 +21,7 @@ with open('test/meta_test.yaml', 'r',  encoding='utf-8') as file:
 
 def is_valid_html(input_string: str) -> bool:
     try:
-        # Parse the string with BeautifulSoup
         soup = BeautifulSoup(input_string, 'html.parser')
-        # If BeautifulSoup can parse it and the parsed content is not empty, it's valid HTML
         return bool(soup.find())
     except Exception:
         return False
@@ -172,7 +170,12 @@ async def button_click(update: Update, context: CallbackContext):
     if command == "hot_questions":
         await hot_questions_command(update, context)
     else:
-        await query.message.reply_text(command)
+        response = handle_response(command)
+        print(f"response: ${response}")
+        if query.message:
+            await query.message.reply_text(response)
+        else:
+            await update.message.reply_text(response)
     # elif command == "trade":
     #     await trade_command(update, context)
     # elif command == "portfolio":

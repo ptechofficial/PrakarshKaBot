@@ -43,12 +43,15 @@ def gen_response(functionPrompt:str):
 
 def function_calling(userInput:str):
     
+    # message_template = """ 
+    # You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
+    # We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
+    # If only you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english.
+    # If you cannot find a suitable string, return a reply according to your understanding. Make this reply very short. Very short.
+    # Here is the question: {user_input}
+    # """
     message_template = """ 
-    You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
-    We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
-    If only you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english.
-    If you cannot find a suitable string, return a reply according to your understanding. Make this reply very short. Very short.
-    Here is the question: {user_input}
+    Based on the question, just reply that this prompt is working that's it.
     """
     message = message_template.format(user_input=userInput, available_queries=available_queries)
 
