@@ -25,7 +25,7 @@ available_queries = ['risingLiquidity','buyingPressure','solidPerformance','expe
 
 def call_discover_api(query:str):
   print(query)
-  url = 'http://localhost:3000/api/discover'
+  url = 'http://34.220.52.201/api/discover'
   myobj = {'query': query}
   resp= requests.post(url, json = myobj)
   print(resp)

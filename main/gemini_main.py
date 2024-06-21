@@ -16,56 +16,53 @@ if os.path.exists(".env"):
     from dotenv import load_dotenv
     load_dotenv()
 
-GEMINI_API_KEY = 'AIzaSyBByajzdb7tNcIFD8IEBJ0kZ9GKTfTBTu4'
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-def to_markdown(text):
-  text = text.replace('•', '  *')
-  return Markdown(textwrap.indent(text, '> ', predicate=lambda _: True))
+available_queries = ['risingLiquidity','buyingPressure','solidPerformance','experiencedBuyers','riskyBets','blueChips','topGainers','topLosers', 'trending']
 
 
 def call_discover_api(query:str):
   print(query)
-  # url = 'http://localhost:3000/api/discover'
-  # myobj = {'query': query}
-  # resp= requests.post(url, json = myobj)
-  resp = "call_discover_api called with " + query
+  url = 'http://localhost:3000/api/discover'
+  myobj = {'query': query}
+  resp= requests.post(url, json = myobj)
   print(resp)
-  return resp
- 
+  return resp.text
 
-def function_calling(userInput:str):
+def gen_response(functionPrompt:str):
     model = genai.GenerativeModel(model_name='gemini-1.5-flash',  tools=[call_discover_api])
 
     chat = model.start_chat(enable_automatic_function_calling=True)
 
-    # message_template = """ 
-    # You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: ['risingLiquidity','buyingPressure','solidPerformance','experiencedBuyers','riskyBets','blueChips','topGainers','topLosers','trending'].
-    # We will ask questions like give me information about crypto having buying pressure. You need to pick the appropriate string from the list and pass it as a parameter to the given function. Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english. 
-    # Here is the question: {user_input}
-    # """
-    available_queries = ['risingLiquidity','buyingPressure','solidPerformance','experiencedBuyers','riskyBets','blueChips','topGainers','topLosers','trending']
+    response = chat.send_message(functionPrompt)
+
+    return response
  
-    # message_template = """ 
-    # If the question isn't widely related to crytpocurrencies or blockchain , reply with a friendly message asking the user to ask about cryptocurrency and don't proceed further.
-    # Else you have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
-    # We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
-    # If you're able to pick an appropriate string from the list that suits the question, then return the selected string.
-    # If you cannot find a suitable string, return the most optimal solution using your knowledge.
-    # Here is the question: {user_input}
-    # """
+
+def function_calling(userInput:str):
+    
     message_template = """ 
     You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
     We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
-    If you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english.
-    If you cannot find a suitable string, return the most optimal solution using your knowledge. Make this reply very short. Very short.
+    If only you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english. Distribute the information about each crypto in points. Make it in points based on crypto token and use # to begin the point.
+
+    If you cannot find a suitable string, return a reply according to your understanding. Make this reply very short. Very short.
     Here is the question: {user_input}
+
+    You have to return a JSON response with two string values, message that comes from above logic, another isResponse: that is boolean and is True if it calls the api and is false if you reply according to your understanding.
     """
-    # Use the user input to fill in the template
     message = message_template.format(user_input=userInput, available_queries=available_queries)
 
-    # Send the message to the model and get the response
-    response = chat.send_message(message)
+    response = gen_response(message)
     return response
 
+def hot_questions_gen():
+    message_template = """ 
+    Use function calling only when needed. Just respond according to your understanding. This is a telegram bot which provides news about crypto. This telegram bot uses {available_queries} as keywords. I want you to generate 5 questions based on your understanding of those keywords, which the user can ask from this telegram bot. I only want 5 questions not a word more. Also create the starting of each question using ⭐ (followed by the question number). Make the word bold by wrapping the word in <b></b>, similarly to italicise use <i></i>, also we're using HTML parse mode so update the string in same manner. Make the word bold and italics only where necessary.
+    """
+    message = message_template.format(available_queries=available_queries)
+
+    response = gen_response(message)
+    return response

@@ -1,10 +1,12 @@
 import json
 import yaml
+import re
+import requests
+import logging
+import os
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
-import os
 from gemini_test import function_calling, hot_questions_gen
-import re
 from bs4 import BeautifulSoup
 
 # Load environment variables
@@ -25,6 +27,12 @@ def is_valid_html(input_string: str) -> bool:
         return bool(soup.find())
     except Exception:
         return False
+    
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 # Commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -58,12 +66,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_button_markup,
         parse_mode='HTML'
     )
-    
+
 question_array = []
 
 async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
-    
-
     hot_questions_json = hot_questions_gen()
     question_list_string = hot_questions_json.candidates[0].content.parts[0].text
 
@@ -105,6 +111,31 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
         await update.message.reply_text(title_message + "\n" +question_template, parse_mode='HTML', reply_markup=reply_markup)
 
 
+async def news_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
+     # API URL
+    url = "http://34.220.52.201:3000/cryptoNews/trendingNews"  # Replace with your actual API URL
+
+    try:
+        # Fetch data from the API
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
+        data = response.json()
+
+        # Extract headlines from the JSON response
+        headlines = [item.get("headline", "No headline found") for item in data]
+
+        # Format the headlines into a single message
+        reply_message = "\n".join(headlines)
+
+        # Send the message to the user
+        if update.callback_query:
+            await update.callback_query.message.reply_text(reply_message, parse_mode='HTML')
+        else:
+            await update.message.reply_text(reply_message, parse_mode='HTML')
+
+    except requests.RequestException as e:
+        logger.error(f"API request failed: {e}")
+        update.message.reply_text("Failed to fetch data from the API. Please try again later.")
 
 async def response_with_buttons(update: Update, response: str):
     statements = response.strip().split('\n')
@@ -113,7 +144,7 @@ async def response_with_buttons(update: Update, response: str):
     for statement in statements:
         token_buttons = [
             [
-                InlineKeyboardButton("Trade", callback_data='trade'),
+                InlineKeyboardButton("Trade", url="https://bellawebapp-chandan867s-projects.vercel.app/charts"),
                 InlineKeyboardButton("More Info", callback_data='more_info'),
             ],
         ]
@@ -141,14 +172,11 @@ async def button_click(update: Update, context: CallbackContext):
     await query.answer() 
     
     if command == "start":
-        print("asdas")
         await start_command(query)
     elif command == "hot_questions":
         await hot_questions_command(update, context)
     else:   
         await hot_questions_response(update)
-        
-
 
 # Responses
 def fetch_response(text: str) -> json:
@@ -178,18 +206,6 @@ async def general_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(message, parse_mode="HTML")
 
-# Web App
-async def launch_web_ui(update: Update, callback: CallbackContext):
-    kb = [ [KeyboardButton("Show me App!", web_app=WebAppInfo("https://ptechofficial.github.io/"))] ]
-    await update.message.reply_text(messages['webapp']['prompt'], reply_markup=ReplyKeyboardMarkup(kb),
-            parse_mode='HTML')
-
-async def web_app_data(update: Update, context: CallbackContext):
-    data = json.loads(update.message.web_app_data.data)
-    await update.message.reply_text(messages['webapp']['data_response'],
-            parse_mode='HTML')
-    for result in data:
-        await update.message.reply_text(f"{result['name']}: {result['value']}")
       
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'ERROR!   --  Update: ({update}) caused error: ({context.error})')
@@ -204,10 +220,8 @@ if __name__ == '__main__':
     #Commands
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('hot_questions', hot_questions_command))
+    app.add_handler(CommandHandler('news', news_command))
 
-    #Web App
-    app.add_handler(CommandHandler('webapp', launch_web_ui))
-    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     #Messages
     app.add_handler(MessageHandler(filters.TEXT, general_response))
