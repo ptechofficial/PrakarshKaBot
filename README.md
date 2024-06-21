@@ -22,8 +22,12 @@ Test ```@test_ptech_bot```
     ```sh
     cd PrakarshKaBot
     ```
-
-3. Install the required Python packages:
+3. Create and Activate Virtual Environment
+    ```sh
+    python -m venv venv
+    venv/Scripts/activate
+    ```
+4. Install the required Python packages:
     ```sh
     pip install -r requirements.txt
     ```
