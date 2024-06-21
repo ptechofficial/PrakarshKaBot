@@ -46,12 +46,12 @@ def function_calling(userInput:str):
     message_template = """ 
     You have access to multiple APIs via the function "call_discover_api" which lets you pull data according to the user query. The function expects a string as a parameter. The string must be from this list: {available_queries}.
     We will ask questions like "Give me information about crypto having buying pressure." Follow the logic below:
-    If only you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english. Distribute the information about each crypto in points. Use # as bullet points.
+    If only you're able to pick an appropriate string from the list that suits the question, then return the selected string and Send the response of the function by selecing these fields from the response:-token_name,token_symbol,price_usd,twitter_followers. Output the response in bullet pointwise manner, each bullet point describing a token in human readable plain english. Distribute the information about each crypto in points. Make it in points based on crypto token and use # to begin the point.
 
     If you cannot find a suitable string, return a reply according to your understanding. Make this reply very short. Very short.
     Here is the question: {user_input}
 
-    
+    You have to return a JSON response with two string values, message that comes from above logic, another isResponse: that is boolean and is True if it calls the api and is false if you reply according to your understanding.
     """
     message = message_template.format(user_input=userInput, available_queries=available_queries)
 
@@ -60,7 +60,7 @@ def function_calling(userInput:str):
 
 def hot_questions_gen():
     message_template = """ 
-    Use function calling only when needed. Just respond according to your understanding. This is a telegram bot which provides news about crypto. This telegram bot uses {available_queries} as keywords. I want you to generate 5 questions based on your understanding of those keywords, which the user can ask from this telegram bot. I only want 5 questions not a word more. Also create the starting of each question using *️⃣ (followed by the question number). Make the word bold by wrapping the word in <b></b>, similarly to italicise use <i></i>, also we're using HTML parse mode so update the string in same manner. Make the word bold and italics only where necessary.
+    Use function calling only when needed. Just respond according to your understanding. This is a telegram bot which provides news about crypto. This telegram bot uses {available_queries} as keywords. I want you to generate 5 questions based on your understanding of those keywords, which the user can ask from this telegram bot. I only want 5 questions not a word more. Also create the starting of each question using ⭐ (followed by the question number). Make the word bold by wrapping the word in <b></b>, similarly to italicise use <i></i>, also we're using HTML parse mode so update the string in same manner. Make the word bold and italics only where necessary.
     """
     message = message_template.format(available_queries=available_queries)
 

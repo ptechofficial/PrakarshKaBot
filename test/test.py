@@ -69,7 +69,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
 
     # Splitting and storing question_list_string to question_array
     html_pattern = re.compile(r'<[^>]+>')
-    emoji_pattern = re.compile(r'[🔷\d\.]+')
+    emoji_pattern = re.compile(r'[⭐\d\.]+')
     questions = question_list_string.strip().split('\n')
     question_array.clear() 
 
@@ -123,6 +123,17 @@ async def response_with_buttons(update: Update, response: str):
         else:
             await update.message.reply_text(statement, parse_mode='HTML', reply_markup = token_button_markup)
 
+async def hot_questions_response(update: Update):
+    query = update.callback_query
+    index = int(query.data) -1 
+    question =question_array[index]
+    response_json: json = fetch_response(question)
+    
+    if query.message:
+        await query.message.reply_text(question)
+    else:
+        await update.message.reply_text(question)
+    await response_with_buttons(update, response_json['message'])
 
 async def button_click(update: Update, context: CallbackContext):
     query = update.callback_query
@@ -135,31 +146,37 @@ async def button_click(update: Update, context: CallbackContext):
     elif command == "hot_questions":
         await hot_questions_command(update, context)
     else:   
-        index = int(query.data) -1 
-        question =question_array[index]
-        response: str = handle_response(question)
-        if query.message:
-            await query.message.reply_text(question)
-        else:
-            await update.message.reply_text(question)
-        await response_with_buttons(update, response)
+        await hot_questions_response(update)
+        
 
 
 # Responses
-def handle_response(text: str) -> str:
+def fetch_response(text: str) -> json:
     processed:str = text.lower()
     print(f'Now executing, function_calling({text})')
-    response_json = function_calling(processed)
-    print(response_json.candidates[0].content.parts[0].text)
-    return response_json.candidates[0].content.parts[0].text
+    response = function_calling(processed)
+    response_json_str = response.candidates[0].content.parts[0].text
+    
+    response_json_str = response_json_str.replace('json', '')
+    response_json_str = response_json_str.replace('```', '')
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(f"Response json = {response_json_str}")
+    response_json =json.loads( response_json_str)
+    
+    return response_json
+
+async def general_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type:str = update.message.chat.type
     text:str = update.message.text
 
     print(f'User ({update.message.chat.id}) in ({message_type}) is sending ({text})')
-    response: str = handle_response(text)
-    await response_with_buttons(update, response)
+    response_json: json = fetch_response(text)
+    message = response_json['message']
+    is_response = response_json['isResponse']
+    if is_response:
+        await response_with_buttons(update, message)
+    else:
+        await update.message.reply_text(message, parse_mode="HTML")
 
 # Web App
 async def launch_web_ui(update: Update, callback: CallbackContext):
@@ -193,7 +210,7 @@ if __name__ == '__main__':
     app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, web_app_data))
 
     #Messages
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT, general_response))
 
     #Errors
     app.add_error_handler(error)
