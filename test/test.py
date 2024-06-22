@@ -113,7 +113,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
 
 async def news_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
      # API URL
-    url = "http://34.220.52.201:3000/cryptoNews/trendingNews"  # Replace with your actual API URL
+    url = "https://bella.thumbnailai.online/cryptoNews/trendingNews"  # Replace with your actual API URL
 
     try:
         # Fetch data from the API
@@ -145,7 +145,7 @@ async def response_with_buttons(update: Update, response: str):
         token_buttons = [
             [
                 InlineKeyboardButton("Trade", url="https://bellawebapp-chandan867s-projects.vercel.app/charts"),
-                InlineKeyboardButton("More Info", callback_data='more_info'),
+                InlineKeyboardButton("More Info", url="https://bellawebapp-chandan867s-projects.vercel.app/detailedReport"),
             ],
         ]
         token_button_markup = InlineKeyboardMarkup(token_buttons)

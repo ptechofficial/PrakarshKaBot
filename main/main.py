@@ -6,7 +6,7 @@ import logging
 import os
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
-from gemini_test import function_calling, hot_questions_gen
+from gemini_main import function_calling, hot_questions_gen
 from bs4 import BeautifulSoup
 
 # Load environment variables
@@ -113,7 +113,7 @@ async def hot_questions_command(update: Update, context = ContextTypes.DEFAULT_T
 
 async def news_command(update: Update, context = ContextTypes.DEFAULT_TYPE):
      # API URL
-    url = "http://34.220.52.201:3000/cryptoNews/trendingNews"  # Replace with your actual API URL
+    url = "https://bella.thumbnailai.online/cryptoNews/trendingNews"  # Replace with your actual API URL
 
     try:
         # Fetch data from the API
@@ -144,8 +144,8 @@ async def response_with_buttons(update: Update, response: str):
     for statement in statements:
         token_buttons = [
             [
-                InlineKeyboardButton("Trade", callback_data='trade'),
-                InlineKeyboardButton("More Info", callback_data='more_info'),
+                InlineKeyboardButton("Trade", url="https://bellawebapp-chandan867s-projects.vercel.app/charts"),
+                InlineKeyboardButton("More Info", url="https://bellawebapp-chandan867s-projects.vercel.app/detailedReport"),
             ],
         ]
         token_button_markup = InlineKeyboardMarkup(token_buttons)

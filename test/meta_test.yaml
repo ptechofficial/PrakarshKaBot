@@ -1,3 +1,8 @@
+resource:
+  urls:
+    tradingView: https://bellawebapp-chandan867s-projects.vercel.app/charts
+    news: https://bella.thumbnailai.online/cryptoNews/trendingNews
+    detailedReport: https://bellawebapp-chandan867s-projects.vercel.app/detailedReport
 commands:
   start:
     message: |
