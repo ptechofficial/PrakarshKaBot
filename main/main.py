@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if(update.callback_query):
         update = update.callback_query
-    image_path = './Assets/Start.jpeg'
+    image_path = './Assets/start.jpg'
 
     reply_buttons = [
         [
