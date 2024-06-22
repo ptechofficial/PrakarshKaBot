@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 on push to master
 
 on:
   push:
@@ -10,32 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-
-    - name: Install SSH key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.EC2_SSH_KEY }}
-        known_hosts: ${{ secrets.EC2_KNOWN_HOSTS }}
-
-    - name: Copy files to EC2
-      run: |
-        scp -r -o StrictHostKeyChecking=no ./main.py ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/PrakarshKaBot
-
-    - name: SSH into EC2 and set up environment
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /home/ubuntu/PrakarshKaBot
-          python3 -m venv venv
-          source venv/bin/activate
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
           pip install -r requirements.txt
-          sudo systemctl restart telegram_bot
-        EOF
-      env:
-        EC2_HOST: ${{ secrets.EC2_HOST }}
+
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}  # Add your EC2 instance's public DNS/IP here
+          username: ${{ secrets.EC2_USERNAME }}  # Add your EC2 instance's username here
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your SSH private key as a secret
+          script: |
+            cd /home/ubuntu/PrakarshKaBot
+            source venv/bin/activate
+            python server.py main
