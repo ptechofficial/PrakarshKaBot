@@ -6,6 +6,7 @@ resource:
 commands:
   start:
     message: |
+      <i> This is TEST Account </i>
       <b>CryptoTradeGPT - Your crypto info & insights hub!</b>
 
       Get the latest info & analysis with cutting-edge AI & real-time data. I can answer your questions about the crypto market and specific currencies. 
