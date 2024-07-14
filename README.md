@@ -36,17 +36,17 @@ Test ```@test_ptech_bot```
 
 To initiate the bot, you'll need to decide whether you're operating in a `test` environment or the `main` environment for live trading.
 
-### Test Environment
+### TEST Environment
 
 For testing purposes, launch the bot with:
     ```
-    python server.py test 
+    git checkout "test"
+    python server.py
     ```
 
-### Main Environment
+### PROD Environment
 
-For live trading, activate the main environment:
     ```
-    python server.py main
+    python server.py
     ```
 
