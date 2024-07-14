@@ -39,6 +39,7 @@ To initiate the bot, you'll need to decide whether you're operating in a `test` 
 ### TEST Environment
 
 For testing purposes, launch the bot with:
+
     ```
     git checkout "test"
     python server.py
