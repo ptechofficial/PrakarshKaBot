@@ -6,7 +6,7 @@ import logging
 import os
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler
-from gemini_test import function_calling, hot_questions_gen
+from gemini_calling import function_calling, hot_questions_gen
 from bs4 import BeautifulSoup
 
 # Load environment variables
@@ -14,8 +14,8 @@ if os.path.exists(".env"):
     from dotenv import load_dotenv
     load_dotenv()
 
-TOKEN = os.getenv('TOKEN_TEST')
-BOT_USERNAME = os.getenv('USERNAME_TEST')
+TOKEN = os.getenv('TOKEN')
+BOT_USERNAME = os.getenv('USERNAME')
 
 # Load messages from YAML
 with open('test/meta_test.yaml', 'r',  encoding='utf-8') as file:
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if(update.callback_query):
         update = update.callback_query
-    image_path = './Assets/Start.jpeg'
+    image_path = './Assets/start.jpg'
 
     reply_buttons = [
         [

@@ -3,18 +3,16 @@ import sys
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import subprocess
-import os
 
 class Server:
     DIRECTORY_TO_WATCH = "."
 
-    def __init__(self, target):
+    def __init__(self):
         self.observer = Observer()
-        self.target = target
         self.process = None  # To store the running subprocess
 
     def run(self):
-        event_handler = Handler(self.target, self)
+        event_handler = Handler(self)
         self.observer.schedule(event_handler, self.DIRECTORY_TO_WATCH, recursive=True)
         self.observer.start()
 
@@ -31,30 +29,17 @@ class Server:
         self.observer.join()
 
     def run_initial_file(self):
-        initial_file = self.get_initial_file()
-        if initial_file:
-            print(f"Live server for {initial_file} ...")
-            self.process = subprocess.Popen(["python", initial_file])
+        initial_file = "main.py"
+        print(f"Live server for {initial_file} ...")
+        self.process = subprocess.Popen(["python", initial_file])
 
-    def get_initial_file(self):
-        if self.target == "test":
-            initial_file = "test/test.py"
-        elif self.target == "main":
-            initial_file = "main/main.py"
-        else:
-            print(f"Invalid target '{self.target}'. Use 'test' or 'main'.")
-            return None
-
-        return initial_file
-
-    def restart_script(self, script_path):
+    def restart_script(self):
         if self.process:
             self.process.terminate()
-        self.process = subprocess.Popen(["python", script_path])
+        self.process = subprocess.Popen(["python", "main.py"])
 
 class Handler(FileSystemEventHandler):
-    def __init__(self, target, server):
-        self.target = target
+    def __init__(self, server):
         self.server = server
         self.last_triggered = 0  # To track the last triggered time
 
@@ -62,35 +47,14 @@ class Handler(FileSystemEventHandler):
         current_time = time.time()
         if current_time - self.last_triggered > 1:  # Debounce threshold (1 second)
             if self.should_rerun(event.src_path):
-                print(f"Detected change in {event.src_path}. Rerunning script...")
+                print(f"Detected change in {event.src_path}. Rerunning main.py...")
                 self.last_triggered = current_time  # Update last triggered time
-                self.server.restart_script(self.get_script_path())
+                self.server.restart_script()
 
     def should_rerun(self, src_path):
-        if self.target == "test":
-            test_files = ["test.py", "meta_test.yaml", "gemini_test.py"]
-            return any(src_path.endswith(file) for file in test_files)
-        elif self.target == "main":
-            main_files = ["main.py", "meta_main.yaml", "gemini_main.py"]
-            return any(src_path.endswith(file) for file in main_files)
-        return False
-
-    def get_script_path(self):
-        if self.target == "test":
-            return "test/test.py"
-        elif self.target == "main":
-            return "main/main.py"
-        return None
+        monitored_files = ["main.py", "meta.yaml", "gemini_calling.py"]
+        return any(src_path.endswith(file) for file in monitored_files)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: python server.py <target>")
-        sys.exit(1)
-
-    target = sys.argv[1]
-    if target not in ["test", "main"]:
-        print(f"Invalid target '{target}'. Use 'test' or 'main'.")
-        sys.exit(1)
-
-    server = Server(target)
+    server = Server()
     server.run()

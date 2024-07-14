@@ -1,30 +1,30 @@
-name: Deploy to EC2 on push to master
+# name: Deploy to EC2 on push to master
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          pip install -r requirements.txt
+#       - name: Install dependencies
+#         run: |
+#           python3 -m pip install --upgrade pip
+#           pip install -r requirements.txt
 
-      - name: SSH into EC2 and deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}  # Add your EC2 instance's public DNS/IP here
-          username: ${{ secrets.EC2_USERNAME }}  # Add your EC2 instance's username here
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your SSH private key as a secret
-          script: |
-            cd /home/ubuntu/PrakarshKaBot
-            source venv/bin/activate
-            python server.py main
+#       - name: SSH into EC2 and deploy
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_HOST }}  # Add your EC2 instance's public DNS/IP here
+#           username: ${{ secrets.EC2_USERNAME }}  # Add your EC2 instance's username here
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your SSH private key as a secret
+#           script: |
+#             cd /home/ubuntu/PrakarshKaBot
+#             source venv/bin/activate
+#             python server.py main
