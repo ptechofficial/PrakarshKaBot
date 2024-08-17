@@ -33,7 +33,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ec2-user@54.202.77.125 << EOF
             cd PrakarshKaBot
             git pull origin master
-            cd scripts
             pip3 install -r requirements.txt
-            nohup python3 server.py &
+            nohup python3 scripts/server.py
           EOF
