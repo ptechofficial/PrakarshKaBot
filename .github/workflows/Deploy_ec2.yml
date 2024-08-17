@@ -14,6 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Print EC2_SSH_KEY secret
+        run: echo "${{ secrets.EC2_SSH_KEY }}" | head -c 100  # Only printing a portion for safety
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
