@@ -1,30 +1,38 @@
-# name: Deploy to EC2 on push to master
+name: Deploy to EC2
 
-# on:
-#   push:
-#     branches:
-#       - master
+on:
+  push:
+    branches:
+      - master
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-#       - name: Install dependencies
-#         run: |
-#           python3 -m pip install --upgrade pip
-#           pip install -r requirements.txt
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-#       - name: SSH into EC2 and deploy
-#         uses: appleboy/ssh-action@master
-#         with:
-#           host: ${{ secrets.EC2_HOST }}  # Add your EC2 instance's public DNS/IP here
-#           username: ${{ secrets.EC2_USERNAME }}  # Add your EC2 instance's username here
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}  # Add your SSH private key as a secret
-#           script: |
-#             cd /home/ubuntu/PrakarshKaBot
-#             source venv/bin/activate
-#             python server.py main
+      - name: Execute deployment script
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << 'EOF'
+            cd /path/to/your/project  # Update to your project path
+            git pull origin master
+            source venv/bin/activate  # Activate virtual environment
+            pip install -r requirements.txt  # Update dependencies
+            
+            # Clear and write secrets to .env file
+            echo -n > .env  # Empty the .env file
+            echo "TOKEN_PROD=${{ secrets.TOKEN_PROD }}" >> .env
+            echo "USERNAME_PROD=${{ secrets.USERNAME_PROD }}" >> .env
+            echo "TOKEN=${{ secrets.TOKEN }}" >> .env
+            echo "USERNAME=${{ secrets.USERNAME }}" >> .env
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
+            
+            nohup python server.py &  # Run server.py in the background
+          EOF
