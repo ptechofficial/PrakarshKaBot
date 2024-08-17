@@ -20,7 +20,7 @@ jobs:
 
       - name: Execute deployment script
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << EOF
             cd /path/to/your/project  # Update to your project path
             git pull origin master
             source venv/bin/activate  # Activate virtual environment
