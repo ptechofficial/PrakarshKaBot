@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - github-action
 
 jobs:
   deploy:
@@ -34,7 +33,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ec2-user@54.202.77.125 << EOF
             cd PrakarshKaBot
             git pull origin master
-            source venv/bin/activate
-            pip install -r requirements.txt
-            nohup python server.py &
+            pip3 install -r requirements.txt
+            nohup python3 server.py &
           EOF
