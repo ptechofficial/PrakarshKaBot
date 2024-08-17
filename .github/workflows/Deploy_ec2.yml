@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - github-action
 
 jobs:
   deploy:
@@ -19,21 +18,24 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Execute deployment script
+      - name: Create and populate .env file with secrets
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@<YOUR_EC2_PUBLIC_IP> << EOF
-            cd /path/to/your/project  # Update to your project path
-            git pull origin master
-            source venv/bin/activate  # Activate virtual environment
-            pip install -r requirements.txt  # Update dependencies
-            
-            # Clear and write secrets to .env file
-            echo -n > .env  # Empty the .env file
+          ssh -o StrictHostKeyChecking=no ec2-user@35.91.8.78 << EOF
+            cd PrakarshKaBot
+            echo -n > .env
             echo "TOKEN_PROD=${{ secrets.TOKEN_PROD }}" >> .env
             echo "USERNAME_PROD=${{ secrets.USERNAME_PROD }}" >> .env
             echo "TOKEN=${{ secrets.TOKEN }}" >> .env
             echo "USERNAME=${{ secrets.USERNAME }}" >> .env
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> .env
-            
-            nohup python server.py &  # Run server.py in the background
+          EOF
+
+      - name: Run deployment script
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@35.91.8.78 << EOF
+            cd PrakarshKaBot
+            git pull origin master
+            source venv/bin/activate
+            pip install -r requirements.txt
+            nohup python server.py &
           EOF
