@@ -18,7 +18,7 @@ TOKEN = os.getenv('TOKEN')
 BOT_USERNAME = os.getenv('USERNAME')
 
 # Load messages from YAML
-with open('./meta.yaml', 'r',  encoding='utf-8') as file:
+with open('scripts/meta.yaml', 'r',  encoding='utf-8') as file:
     messages = yaml.safe_load(file)['commands']
 
 def is_valid_html(input_string: str) -> bool:
