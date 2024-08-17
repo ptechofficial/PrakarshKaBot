@@ -14,9 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Print EC2_SSH_KEY secret
-        run: echo "${{ secrets.EC2_SSH_KEY }}" | head -c 100  # Only printing a portion for safety
-
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -24,7 +21,7 @@ jobs:
 
       - name: Create and populate .env file with secrets
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@35.91.8.78 << EOF
+          ssh -o StrictHostKeyChecking=no ec2-user@54.202.77.125 << EOF
             cd PrakarshKaBot
             echo -n > .env
             echo "TOKEN_PROD=${{ secrets.TOKEN_PROD }}" >> .env
@@ -36,7 +33,7 @@ jobs:
 
       - name: Run deployment script
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@35.91.8.78 << EOF
+          ssh -o StrictHostKeyChecking=no ec2-user@54.202.77.125 << EOF
             cd PrakarshKaBot
             git pull origin master
             source venv/bin/activate
